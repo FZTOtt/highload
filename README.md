@@ -25,5 +25,4 @@ MVP функционал:
 7. Модерация.
 
 Список источников:
-
-1.[14+ Reddit Statistics For 2024](https://www.demandsage.com/reddit-statistics/)
+1. [14+ Reddit Statistics For 2024](https://www.demandsage.com/reddit-statistics/).
