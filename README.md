@@ -1,3 +1,3 @@
 # highload
 
-##[Reddit](https://www.reddit.com/)
+## [Reddit](https://www.reddit.com/)
