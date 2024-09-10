@@ -32,7 +32,7 @@ MVP функционал:
 4. Система голосования/оценки.
 5. Выдача ленты контента.
 6. Поиск постов.
-7. Профиль пользователя.
+7. Регистрация.
 
 Ключевые продуктовые решения:
 1. Система голосования, влияющая на порядок отображения.
@@ -42,3 +42,13 @@ MVP функционал:
 Список источников:
 1. [19 best sites like Reddit 2024](https://rigorousthemes.com/blog/best-reddit-alternatives/)
 2. [14+ Reddit Statistics For 2024](https://www.demandsage.com/reddit-statistics/).
+
+### 2. Расчет нагрузки
+
+Продуктовые метрики:
+1. Месячная аудитория (MAU) - 62.24 миллиона[1],
+2. Дневная аудитория (DAU) - 2.306 миллиарда[1],
+   
+
+Список источников:
+1. [Reddit User Base & Growth Statistics: How Many People Use Reddit? (2024)](https://www.bankmycell.com/blog/number-of-reddit-users/)
