@@ -106,7 +106,7 @@ MVP функционал:
 | Создание поста | 0.1 | ~70 | 252 |
 | Загрузить сообщество | 1 | ~700 | 2.520 |
 | Комментировать | 0.6 | ~420 | 1.512 | 
-Итого: ~6.600 средний, и ~23.760 пиковый
+|Итого| 9,2 | ~6.600| ~23.760 |
 
 Список источников:
 1. [Reddit User Base & Growth Statistics: How Many People Use Reddit? (2024)](https://www.bankmycell.com/blog/number-of-reddit-users/)
