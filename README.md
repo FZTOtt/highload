@@ -71,7 +71,7 @@ MVP функционал:
 
 | Блок | Штук | Вес | Всего |
 | ---- | ---- | --- | ----- |
-| Посты (всего) | 11 000 000 [^5] * 12 * (2024-2005) = 2 508 000 000| 1 МБ | ~2 394 ТБ |
+| Посты (всего) | 11 000 000 [5] * 12 * (2024-2005) = 2 508 000 000| 1 МБ | ~2 394 ТБ |
 | Текст поста | ~ количесвто постов | 0,5 КБ | ~1.2 ТБ |
 | Фото поста | ~0.6 постов | ~85 КБ | ~120 ТБ |
 | GIF поста | ~0.4 постов | 512 КБ | ~478.8 ТБ |
@@ -110,5 +110,5 @@ MVP функционал:
 2. [Reddit User Age, Gender, & Demographics (2024)](https://explodingtopics.com/blog/reddit-users)
 3. [Significant Reddit Statistics 2024: Facts & Figures, Usage Statistics](https://bytegain.com/reddit-statistics/)
 4. [Latest Reddit Statistics: The SECRET Social Media Platform](https://www.ileeline.com/reddit-statistics/)
-5. [^5][20+ Riveting Reddit Statistics [2023]](https://www.zippia.com/advice/reddit-statistics/)
+5. [20+ Riveting Reddit Statistics [2023]](https://www.zippia.com/advice/reddit-statistics/)
 6. [How many subreddits are on Reddit?](https://wegotthiscovered.com/social-media/how-many-subreddits-are-on-reddit/)
