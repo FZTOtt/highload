@@ -185,7 +185,7 @@ MVP функционал:
 
 Весь мир.
 
-![alt text](WorldDC.png)
+![alt text](img/WorldDC.png)
 [Примерная карта датацентров](https://yandex.ru/maps/?ll=38.353354%2C25.216488&mode=usermaps&source=constructorLink&um=constructor%3A6f3f0d5f20e86332fae7f1b4a40f52184158eb986e23d8d44e151d4904ef01a8&z=3)
 
 3. Схема глобальной балансировки.
