@@ -230,7 +230,7 @@ MVP функционал:
 
 [Схема](https://dbdiagram.io/d/6702ce66fb079c7ebd812656)
 
-![Схема БД](img\DB_schema.png)
+![Схема БД](img/DB_schema.png)
 
 Описание таблиц:
 
