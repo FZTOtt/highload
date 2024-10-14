@@ -332,12 +332,12 @@ MVP функционал:
 | Subreddit         | Нет             | Да              | 
 | Sessions          | Нет             | Резирвирование для восстановления данных |
 
-Библиотеки: psycopg2 cassandra-driver tarantool-python
+Библиотеки: psycopg2 cassandra-driver tarantool-python Vshard
 
 Балансировка запросов:
-PostgreSQL: Pgpool-II
-Cassandra: внутренние механизмы
-Tarantool: не предусмотрено
+PostgreSQL: Pgpool-II (репликация и шардирование)
+Cassandra: внутренние механизмы (шардирование)
+Tarantool: репликация
 
 Схема резервного копирования:
 | Название СУБД     | Схема             |
