@@ -335,7 +335,7 @@ Druid vs ClickHouse. [1,2]
 | Subreddit         | id, name, about (полнотекстовый) Добавление счётчика subscribers | -           | Cassandra | -     | - |
 | Subscribes        | user_id, subreddit_id | -                             | ClickHouse            | -                 | - |
 | Post              | user_id, subreddit_id, id, created_at (b-tree) | Дублирование информации об авторе и сабреддите, запрос количества голосов отдельным запросом | Cassandra | - | Большое чтение |
-| Comment           | post_id, parent_comment| Дублирование информации о пользователе, внешний счётчик голосования | Cassandra   | post_id, так как таблица слишком большая   | Большое чтение |
+| Comment           | post_id, parent_comment, {post_id, parent_comment=Null}| Дублирование информации о пользователе, внешний счётчик голосования | Cassandra   | post_id, так как таблица слишком большая   | Большое чтение |
 | Comment_votes     | comment_id            | -                             | Cassandra             | comment_id (высокая запись) | - |
 | Post_votes        | post_id, user_id      | -                             | ClickHouse            | -            | Реплика только для чтения |
 | Post_votes_cnt    | post_id               | -                             | Cassandra             | - (постепенное обновление) | - |
