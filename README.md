@@ -331,16 +331,16 @@ Druid vs ClickHouse. [1,2]
 | Название таблицы  | Индексируемое поле    |Применённая денормализация     | Выбранная СУБД        | Шардирование      | Реплицирование        |
 | ----------------  | --------------------- | ----------------              | --------------------- | ----------------  | --------------------- |
 | Sessions          | User_id               | -                             | Tarantool             | VShard(buckets)   | VShard(replicaset)    |
-| User              | id, display name     | -                             | Cassandra             | -                 | Master - 2 Slaves     |
-| Subreddit         | id, name, about (полнотекстовый) Добавление счётчика subscribers | Cassandra           | -                 | -     | Master - 2 Slaves
-| Subscribes        | user_id, subreddit_id | -                             | ClickHouse            | -                 | -                     |
-| Post              | user_id, subreddit_id, id, created_at (b-tree) | Дублирование информации об авторе и сабреддите, запрос количества голосов отдельным запросом | Cassandra | - | Master - 2 Slaves |
-| Comment           | post_id               | Дублирование информации о пользователе, внешний счётчик голосования | Cassandra   | post_id, так как таблица слишком большая   | Master - 2 Slaves |
-| Comment_votes     | comment_id            | -                             | Cassandra             | post_id (высокая запись) | -           |
-| Post_votes        | post_id, user_id      | -                             | ClickHouse            | post_id           | -                     |
-| Post_votes_cnt    | post_id               | -                             | Cassandra             | - (постепенное обновление) | Master - 2 Slaves |
-| Comment_votes_cnt | comment_id            | -                             | Cassandra             | - (постепенное обновление) | Master - 2 Slaves |
-| Subscribers_counter| subreddit_id         | -                             | Cassandra             | - (постепенное обновление) | -            |
+| User              | id, display name, email     | -                             | Cassandra             | -           | - |
+| Subreddit         | id, name, about (полнотекстовый) Добавление счётчика subscribers | -           | Cassandra | -     | - |
+| Subscribes        | user_id, subreddit_id | -                             | ClickHouse            | -                 | - |
+| Post              | user_id, subreddit_id, id, created_at (b-tree) | Дублирование информации об авторе и сабреддите, запрос количества голосов отдельным запросом | Cassandra | - | Большое чтение |
+| Comment           | post_id, parent_comment| Дублирование информации о пользователе, внешний счётчик голосования | Cassandra   | post_id, так как таблица слишком большая   | Большое чтение |
+| Comment_votes     | comment_id            | -                             | Cassandra             | comment_id (высокая запись) | Реплика только для чтения |
+| Post_votes        | post_id, user_id      | -                             | ClickHouse            | -            | - |
+| Post_votes_cnt    | post_id               | -                             | Cassandra             | - (постепенное обновление) | - |
+| Comment_votes_cnt | comment_id            | -                             | Cassandra             | - (постепенное обновление) | - |
+| Subscribers_counter| subreddit_id         | -                             | Cassandra             | - (постепенное обновление) | - |
 | Post_elasticSearch| id                    | -                             | ElasticSearch         | -                 | -                     |
 | videos/gif/avatars/photos | -             | -                             | S3                    | -                 | -                     |
 
