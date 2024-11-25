@@ -496,7 +496,10 @@ Tarantool: VShard
 | Search| 1 800: поиск  | 1 800 * (10 * 4) ~= 0.000072 ГБ/с |
 | Auth | 10 000: загрузка ленты + 0.6: создание поста + 11: комментировать + 6 500: оценить = ~16 512| 16 512 *  276 Б ~= 0.005 ГБ/с |
 
+Примем, что один Ngnix сервер с 24 GPU выдерживает 10 000 RPS [1].
+
 Прочее:
+
 |Сервис | RPS   | Нагрузка на сеть |
 | ---   | ---   | ---   |
 | API-Gateway | Суммарный RPS всех запросов 33 000 | Тоже суммарная ~0.24 ГБ/с |
@@ -517,22 +520,7 @@ Tarantool: VShard
 | Recomender | 438 | 5 | 1 Гб | 
 | Search| 225 | 3 | 1 Гб |
 | API-Gateway | 4125 | 42 | 5 Гб |
-| Nginx | 4125 | 42 | 5 Гб |
-
-| Таблица   | Размер для одной записи   | Кол-во записей    | Всего |
-| --------- | ------------------------- | ------------      | ----- |
-| User      | (4:id + 256:email + 60:password + 6:gender + 50:display_name + 200:about + 256:avatar_url)Б = 832 Б | 0.5e9 | 387,43 ГБ |
-| Sessions  | (256:session_id + 4:user_id + 8:created_at + 8:last_access)Б = 276Б | 0.5e9 | 128,5 ГБ |
-| Subscribes| (4:id + 4: user_id + 4:subreddit_id)Б = 12 Б | ~2.5e9 | 27,94 ГБ |
-| Subreddit | (4:id + 500:about + name:21 + 256:avatar_url + 256:header_img_url + 4:subscribers)Б = 1041 Б | 10e6 | 0,97 ГБ |
-| Post      | (4:id + 4:user_id + 4:subreddit_id + 300:title + 500:body_text + 256:mediafile_link + 4:votes + 8:created_at + 1:deleted + 4:comment_count)Б | 2.5e9 | 2 514 ГБ |
-| Comment   | (4:id + 4:user_id + 4:post_id + 4:comment_id + 500:text + 1:deleted + 4:comment_count + 4:votes)Б = 520Б | 38e9 | 18 400 ГБ |
-| Post_votes| (4:id + 4:user_id + 4:post_id + 1:vote)Б = 13Б | 550e9 | 6 659 ГБ |
-| Comment_votes| (4:id + 4:user_id + 4:comment_id + 1:vote)Б = 13Б | 400e9 | 4 843 ГБ |
-| Videos            | 750 КБ  | 2.5e8 | 175 ТБ |
-| Photos            | 50 КБ   | 1.5e9 | 20 ТБ |
-| Avatars           | 50 КБ   | 0.5e9 | 6.6 ТБ |
-| Gif               | 200 КБ  | 1e9   | 954 ГБ |
+| Nginx | 4125 | 24 | 5 Гб |
 
 БД:
 | БД | RPS | CPU | RAM | Disk (суммарно) |
@@ -541,10 +529,21 @@ Tarantool: VShard
 | ClickHouse | 500: post_votes / 50 (батчи) = 50 | 1 | 1 ГБ | 6 659: post_votes + 27,94: subscribes ~= 6 687 ГБ. Используется 10 ТБ |
 | Cassandra | 450: User + 1250: Post + 1375: Comment + 813: Vote + 7: загрузка в comment_votes_cnt (батчи по 50) + 2625: Count = 6520 | 70 | 7 ГБ |387.5: User + 1: subreddit + 2 514: Post + 18 400: Comment + 4 843: Comment_votes = 26 145.5. Исользуем 30 ТБ |
 | ElasticSearch | 225: Search + 1: Создать пост = 226 | 23 | 1 ГБ | (id title body_text) ~ 1 870 ГБ. Используем 2 ТБ |
-| Kafka |
-| Prometeus |
-| S3 |
+| Kafka | 1: Создать пост + 813: Vote + 11: Создать комментарий = 824 | 9 | 1 ГБ | - |
+| Prometeus | | | | |
+| S3 | | | | |
 
+Всего дня одного ДЦ на кубернетисе (для сервисов) должно быть 143 ядра с 21 ГБ оперативной памяти и пропускной способностью 10 Гб/с.
+
+Комплектация серверов.
+| Сервис        |  Конфигурация                                  | Ядра  | Количество на 1 ДЦ | Цена за 1 | Аренда |
+|---------------|------------------------------------------------|-------|-------|---------|--------------------|
+| Kube node     | AMD EPYC 7643 2 x 10Gb/s                       | 1x48  | 4     | 10,487 Евро  | - |
+| Tarantool     |  |   |    |   |               |
+| Kafka         |     |   |    |  |          |
+| ElasticSearch |    |  |     | |           |
+| Cassandra     |   |  |   |   |            |
+| ClickHouse    |  |  |   |  |        |
 
 Список источников:
 1. [Testing the Performance of NGINX and NGINX Plus Web Servers](https://www.nginx.com/blog/testing-the-performance-of-nginx-and-nginx-plus-web-servers/)
