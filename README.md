@@ -530,17 +530,38 @@ Tarantool: VShard
 |API-Gateway| Лёгкая                    | 4125  | 42    | 5 Гб  |
 | Nginx     | *                         | 4125  | 24    | 5 Гб  |
 
+Индексы:
+Предположим, что индекс весит 10 Б
+ClickHouse:
+    Subscribes: (user_id, subreddit_id) ~2.5e9 * 2 индексов = 5e9 * 10 ~= 50 ГБ
+    Post_votes: (post_id, user_id) 550e9 * 2 индексов = ~1e12 * 10 ~= 10 ТБ. Отказаться от этого индекса.
+    Суммарно 50 Гб.
+
+Cassandra: 
+    User: (id, email, display_name) 0.5e9 * 3 индексов ~= 15 ГБ
+    Subreddit: (id, name, about) 10e6 * 3 индексов ~= 300 МБ
+    Post: (user_id, subreddit_id) 2.5e9 * 2 индексов = 50 ГБ
+    Comment: (post_id, parent_comment) 38e9 * 2 ~= 500 ГБ
+    Comment_votes: (comment_id) 400e9 индексов ~= 4 ТБ
+    Post_votes_cnt: (post_id) 2.5e9 = 50 ГБ
+    Comment_votes_cnt: (comment_id) 38e9 ~= 400 ГБ
+    Subscribers_counter: (subreddit_id) 10e6 ~= 100 МБ
+
+    Суммарно ~1 ТБ. Comment шардируются по post_id, а comment_votes_cnt также можно шардировать по
+    comment_id. Тогда получиться раскидать 1 ТБ по нескольким серверам.
+
+
 
 БД:
 | БД            | RPS   | CPU   | RAM index | Disk (суммарно c учетом 2 реплик) |
 | ---           | ----  | ---   | --- | ----            |
 | Tarantool     | 2064  | 21    | 128.5 + 0.5e9 * 12 Б = 135,1ГБ. Используем 192 ГБ  | 1 ТБ |
-| ClickHouse    | 500: post_votes / 50 (батчи) = 10 | 1 | 1 ГБ | 6 659: post_votes + 27,94: subscribes ~= 6 687 ГБ * 3. Используется 20 ТБ |
-| Cassandra     | 450: User + 1250: Post + 1375: Comment + 813: Vote + 7: загрузка в comment_votes_cnt (батчи по 50) + 2625: Count = 6520 | 70 | 7 ГБ |387.5: User + 1: subreddit + 2 514: Post + 18 400: Comment + 4 843: Comment_votes = 26 145.5 * 3. Исользуем 80 ТБ |
+| ClickHouse    | 500: post_votes / 50 (батчи) = 10 | 1 | 128 ГБ (50 но с запасом) | 6 659: post_votes + 27,94: subscribes ~= 6 687 ГБ * 3. Используется 20 ТБ |
+| Cassandra     | 450: User + 1250: Post + 1375: Comment + 813: Vote + 7: загрузка в comment_votes_cnt (батчи по 50) + 2625: Count = 6520 | 70 | 1 ТБ (2 сервера по 768 ГБ на каждом) |387.5: User + 1: subreddit + 2 514: Post + 18 400: Comment + 4 843: Comment_votes = 26 145.5 * 3. Исользуем 80 ТБ |
 | ElasticSearch | 225: Search + 1: Создать пост = 226 | 23 | 20 ГБ на 1 ТБ = 40 ГБ. Используем 64 ГБ | (id title body_text) ~ 1 870 ГБ * 3. Используем 8 ТБ |
 | Kafka         | 1: Создать пост + 813: Vote + 11: Создать комментарий = 824 | 9 | 1 ГБ | 1 ТБ |
 | Promethus     | ~450 метрик/с  | 5    | 5 ГБ | 1 ТБ |
-| S3            | 450 * 2:Users(avatar+header_img) + 37 500: Post(content) + 27 500: Comment(avatar) = 65 900 | - | - | 203 ТБ |
+| S3            | 450 * 2:Users(avatar+header_img) + 37 500: Post(content) + 27 500: Comment(avatar) = 65 900 | 70 | 70ГБ | 203 ТБ |
 
 Прирост пользователей. Предположим, что прирост пользователей в год составит 125 млн. Это прирост в почти 30% от текущего числа пользователей за 5 лет.
 ![alt text](image.png)
@@ -549,16 +570,17 @@ Tarantool: VShard
 Цена Vk cloud [3] (203 ТБ данных, Сеть(по постам [Дз 2]) 0.55МБ x 96 000 x 3600 x 24 x 30 = 136 857 600 ГБ/месяц):
 ~2 000 000$
 Комплектаця серверов.
-| Сервис        |  Конфигурация                                 | Ядра  | Количество на 1 ДЦ    | Цена за 1 | Аренда    |
-|---------------|-----------------------------------------------|-------|--------------------   |---------  |-------    |
-| Kube node     | 1U EPYC EP1-104S AMD EPYC 7643 8GB DDR4       | 1x48  | 6                     | €7,440    | €124      |
-| Tarantool     | 1U AMD EPYC 7543P 32GB DDR4 x6 Samsung NVME 1ТБ| 1x32 | 1                     | €5,248    | €88       |
-| Kafka         | 1U AMD EPYC 7313P 8GB DDR4 Samsung NVME 1ТБ   | 1x16  | 1                     | €2,396    | €40       |
-| ElasticSearch | 1U AMD EPYC 7543P 32GB RAM x2 NVMe 8 ТБ NVME  | 1x16  | 1                     | €6,032    | €101      |
-| Cassandra     | 1U AMD EPYC 7402P 8GB RAM  x2 16ТБ NVME       | 1х24  | 3                     | €3,934    | €65       |
-| ClickHouse    | 1U AMD EPYC 7313P 8GB RAM  x2 16ТБ NVME       | 1x16  | 1                     | €2,979    | €50       |
-| Prometheus    | 1U AMD EPYC 7313P 8GB DDR4 Samsung NVME 1ТБ   | 1x16  | 1                     | €2,396    | €40       |
-| S3            | -                                             | -     | -                     | -         | 2 000 000$|
+| Сервис        |  Конфигурация                                 | Ядра  | Количество на 1 ДЦ    | Цена за 1 | Амортизаця| Аренда    |
+|---------------|-----------------------------------------------|-------|--------------------   |---------  |-------    | --------- |
+| Kube node     | 1U EPYC EP1-104S AMD EPYC 7643 8GB DDR4       | 1x48  | 6                     | €7,440    | €124      | 1200$     |
+| Tarantool     | 1U AMD EPYC 7543P 32GB DDR4 x6 Samsung NVME 1ТБ| 1x32 | 1                     | €5,248    | €88       | 800$      |
+| Kafka         | 1U AMD EPYC 7313P 8GB DDR4 Samsung NVME 1ТБ   | 1x16  | 1                     | €2,396    | €40       | 450$      |
+| ElasticSearch | 1U AMD EPYC 7543P 32GB RAM x2 NVMe 8 ТБ NVME  | 1x16  | 3                     | €6,032    | €101      | 1000$     |
+| Cassandra     | 1U AMD EPYC 7402P х2 128GB RAM  x2 16ТБ NVME  | 1х24  | 6                     | €7,534    | €65       | 1250$     |
+| ClickHouse    | 1U AMD EPYC 7313P 128GB RAM x2 16ТБ NVME      | 1x16  | 3                     | €2,979    | €50       | 600$      |
+| Prometheus    | 1U AMD EPYC 7313P 8GB DDR4 Samsung NVME 1ТБ   | 1x16  | 1                     | €2,396    | €40       | 500$      |  
+| S3            | -                                             | -     | -                     | -         | 2 000 000$| -         |
+| S3            | 4U 2x AMD EPYC 7643  2x 64GB RAM 14x 20TB HDD | 2x48  | 1                     | €21,537   | €359      | 3500$     |
 
 Список источников:
 1. [Testing the Performance of NGINX and NGINX Plus Web Servers](https://www.nginx.com/blog/testing-the-performance-of-nginx-and-nginx-plus-web-servers/)
