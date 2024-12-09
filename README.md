@@ -534,7 +534,6 @@ Tarantool: VShard
 Предположим, что индекс весит 10 Б
 ClickHouse:
     Subscribes: (user_id, subreddit_id) ~2.5e9 * 2 индексов = 5e9 * 10 ~= 50 ГБ
-    Post_votes: (post_id, user_id) 550e9 * 2 индексов = ~1e12 * 10 ~= 10 ТБ. Отказаться от этого индекса.
     Суммарно 50 Гб.
 
 Cassandra: 
@@ -542,7 +541,6 @@ Cassandra:
     Subreddit: (id, name, about) 10e6 * 3 индексов ~= 300 МБ
     Post: (user_id, subreddit_id) 2.5e9 * 2 индексов = 50 ГБ
     Comment: (post_id, parent_comment) 38e9 * 2 ~= 500 ГБ
-    Comment_votes: (comment_id) 400e9 индексов ~= 4 ТБ
     Post_votes_cnt: (post_id) 2.5e9 = 50 ГБ
     Comment_votes_cnt: (comment_id) 38e9 ~= 400 ГБ
     Subscribers_counter: (subreddit_id) 10e6 ~= 100 МБ
